@@ -10,8 +10,7 @@ function task3($file){
     $alg_result = showBanners(prepareData($file));
     $task_answer = array();
     foreach($alg_result as $elem){
-        if($elem[1] < 1){
-        array_push($task_answer, $elem[0].' '. round($elem[2], 6) ."\n");}
+        array_push($task_answer, $elem[0]. ' ' . round($elem[2], 6) ."\n");
     }
     return $task_answer;
 }

@@ -41,9 +41,10 @@ function testWholeFile($solveFunction, $dataPath, $answerPath): bool{
 	$line = file_get_contents($dataPath);
 	$answer = file_get_contents($answerPath);
 	$result = $solveFunction($line);
-	if ($solveFunction == "task1"){
+	if ($solveFunction == "task1"){ // в первом таске есть лишние символы (кроме букв и цифер)
 		return preg_replace('\W','', $result) === preg_replace('\W','', $answer);
 	}
+
 	return $result === $answer;
 }
 
@@ -65,6 +66,7 @@ function testTask3($solveFunction, $dataPath, $answerPath): bool{
 		echo "\nProgramm answer: " . $result[$i] . "Answer from ans: " . $answer;
 		$i++;
 	}
+	echo "\n";
 	return true;
 }
 
@@ -84,11 +86,7 @@ function testFiles($taskToTest, $solveFunction, $isByLines){
 	$answerFilesDir = './' . $taskToTest . '/ans/'; 
 
 	if($isByLines == 1 || $isByLines == 0 ){
-		$testFunction = $isByLines ? 'testByLines' : 'testWholeFile'; 
-	}
-
-	if($isByLines == 3){
-		$testFunction = 'testTask3';
+		$testFunction = $isByLines ? 'testTask3' : 'testWholeFile'; 
 	}
 
 	$dataPaths = scandir($dataFilesDir);
@@ -101,12 +99,12 @@ function testFiles($taskToTest, $solveFunction, $isByLines){
 			$dataFilesDir . $dataPaths[$i], 
 			$answerFilesDir . $answerPaths[$i]
 		);
-		echo "\n******** Тест " . ($i-1) . ($testResult ? ' ' : ' не ') . "пройден\n";
+		echo "******** Тест " . ($i-1) . ($testResult ? ' ' : ' не ') . "пройден\n";
 	}
 	echo "\n";
 }
 
 testFiles('1', 'task1', 0);
 testFiles('2', 'task2', 0);
-testFiles('3', 'task3', 3);
-//testFiles('4', 'task4', 0);
+testFiles('3', 'task3', 1);
+testFiles('4', 'task4', 0);
