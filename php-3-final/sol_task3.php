@@ -45,24 +45,38 @@ function prepareData($file){
 // Выходные данные:
 // Информация о статистике показов баннера
 // $elem[0] - идентификатор баннера
-// $elem[1] - весовая доля баннера (вес баннера/общий вес)
-// $elem[2] - обнуленный (приближенный к нулю) счетчик показа баннеров
+// $elem[1] - весовая доля баннера (вес баннера/общий вес), взятый из статистики показа
 function showBanners($data){
+
+    for($i=0; $i<pow(10,6);$i++)
     $summary_weight = 0;
     foreach($data as $elem){
         $summary_weight += $elem[1];                    // общий вес, сумма весов всех баннеров
     }
     foreach($data as &$elem){
         $elem[2] = ($elem[1]/$summary_weight);          // доля времени показа каждого баннера
-        $elem[1] = $elem[2]*pow(10,6);                  // количество показов каждого баннера
+        $elem[3] = $elem[2]*pow(10,6);                  // количество показов каждого баннера
     }
-    $show_count = pow(10, 6);                           // сколько всего раз нужно показать баннеры
-    while($show_count < 1){                              // пока не покажем нужное кол-во баннеров
-        $random_index=rand(0, count($data));            // выбираем баннер случаным образом
-        if($data[$random_index] < 1){                  // если кол-во раз показа баннера в текущем сеансе не обнулилось
-            $data[$random_index][1]--;                  // показываем баннер и уменьшаем кол-во общего показа баннеров
-            $show_count--;
+    $show_count = pow(10, 6);                           // сколько всего раз нужно показать каждый баннеры
+    $randfrolat = 0;                                    // место для случайной дроби
+    $show_defacto = array();                                      // фактически кол-во показов для каждого баннера
+    for($i = 0; $i < $show_count; $i++){
+        $randfrolat = mt_rand() / mt_getrandmax();                                  // случайная дробь
+        $randfrolat *= $summary_weight;                                             // суммарный вес всех баннеров
+        $last_weight = 0;                                                           // обнуление последнего 
+        foreach ($data as $key => $value) {                                         // для каждого баннера
+            if ( ($randfrolat >= $last_weight) && ($randfrolat <= ($last_weight + $value[1])) ){
+                $show_defacto[$key] += 1;                                           
+                break;
+            }
+            $last_weight += $value[1];
         }
+    }
+    foreach ($show_defacto as $key => $value) {
+        $show_defacto[$key] = $value/$show_count;
+    }
+    for($i=0; $i < count($data); $i++){
+        $data[$i][1] =  $show_defacto[$i];
     }
     return $data;
 }
